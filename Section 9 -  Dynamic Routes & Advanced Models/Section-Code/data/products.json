@@ -12,26 +12,5 @@
     "description": "Another very amazing product!",
     "price": "20.99",
     "id": "0.558673316244021"
-  },
-  {
-    "title": "fasdfasd",
-    "imageUrl": "https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg",
-    "description": "sadfasdf",
-    "price": "0.05",
-    "id": "0.22477636801318623"
-  },
-  {
-    "title": "jdksfhksadf",
-    "imageUrl": "TEST.jpg",
-    "description": "sadfsadf",
-    "price": "0.03",
-    "id": "0.9135912477323411"
-  },
-  {
-    "title": "jdksfhksadf",
-    "imageUrl": "https://www.publicdomainpictures.net/pictures/10000/velka/1-1210009435EGmE.jpg",
-    "description": "sadfsadf",
-    "price": "0.03",
-    "id": "0.9135912477323411"
   }
 ]
