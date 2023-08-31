@@ -4,7 +4,7 @@ exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
-    editing: false,
+    editing: false
   });
 };
 
@@ -24,12 +24,15 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const prodId = req.params.productId;
-  Product.findById(prodId, (prod) => {
+  Product.findById(prodId, product => {
+    if (!product) {
+      return res.redirect('/');
+    }
     res.render('admin/edit-product', {
-      pageTitle: 'Add Product',
+      pageTitle: 'Edit Product',
       path: '/admin/edit-product',
       editing: editMode,
-      product: prod,
+      product: product
     });
   });
 };
@@ -37,26 +40,26 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const prodId = req.body.productId;
   const updatedTitle = req.body.title;
-  const updatedImageUrl = req.body.imageUrl;
-  const updatedDescription = req.body.description;
   const updatedPrice = req.body.price;
-  const product = new Product(
+  const updatedImageUrl = req.body.imageUrl;
+  const updatedDesc = req.body.description;
+  const updatedProduct = new Product(
     prodId,
     updatedTitle,
     updatedImageUrl,
-    updatedDescription,
+    updatedDesc,
     updatedPrice
   );
-  product.save();
+  updatedProduct.save();
   res.redirect('/admin/products');
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.fetchAll((products) => {
+  Product.fetchAll(products => {
     res.render('admin/products', {
       prods: products,
       pageTitle: 'Admin Products',
-      path: '/admin/products',
+      path: '/admin/products'
     });
   });
 };
