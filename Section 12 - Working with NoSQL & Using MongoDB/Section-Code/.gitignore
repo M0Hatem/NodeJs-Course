@@ -1,0 +1,5 @@
+node_modules
+.vscode
+user.text
+util/database.js
+.idea
