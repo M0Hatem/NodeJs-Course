@@ -113,5 +113,4 @@ class User {
       .catch((err) => console.log(err));
   }
 }
-
 module.exports = User;
