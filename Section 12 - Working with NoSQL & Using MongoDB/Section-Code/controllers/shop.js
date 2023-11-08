@@ -51,13 +51,11 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   req.user
     .getCart()
-    .then((cart) => {
-      return cart.getProducts().then((products) => {
-        res.render("shop/cart", {
-          path: "/cart",
-          pageTitle: "Your Cart",
-          products: products,
-        });
+    .then((products) => {
+      res.render("shop/cart", {
+        path: "/cart",
+        pageTitle: "Your Cart",
+        products: products,
       });
     })
     .catch((err) => console.log(err));
@@ -95,6 +93,7 @@ exports.postCart = (req, res, next) => {
       return req.user.addToCart(prod);
     })
     .then((result) => {
+      res.redirect("/cart");
       console.log(result);
     });
   // let fetchCart;
@@ -129,12 +128,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   req.user
-    .getCart()
-    .then((cart) => cart.getProducts({ where: { id: prodId } }))
-    .then((products) => {
-      const product = products[0];
-      return product.cartItem.destroy();
-    })
+    .deleteItemFromCart(prodId)
     .then(() => res.redirect("/cart"))
     .catch((err) => console.log(err));
 };
@@ -142,29 +136,9 @@ exports.postCartDeleteProduct = (req, res, next) => {
 exports.postOrder = (req, res, next) => {
   let fetchedCart;
   req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      cart.getProducts();
-    })
-    .then((products) => {
-      return req.user
-        .createOrder()
-        .then((order) => {
-          order.addProducts(
-            products.map((product) => {
-              product.orderItem = { quantity: product.cartItem.quantity };
-              return product;
-            })
-          );
-        })
-        .then(() => {
-          return fetchedCart.setProducts(null);
-        })
-        .then(() => {
-          res.redirect("/orders");
-        })
-        .catch((err) => console.log(err));
+    .postOrder()
+    .then(() => {
+      res.redirect("/orders");
     })
     .catch((err) => console.log(err));
 };
