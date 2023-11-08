@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const userSchema= new Schema({
     name:{type:String,require:true},
     email:{type:String,require:true},
-    cart:{item:[{productId:{type:Schema.Types.ObjectId,require:true},quality:{type:Number,require:true}}]}
+    cart:{item:[{productId:{type:Schema.Types.ObjectId,ref:'Product',require:true},quality:{type:Number,require:true}}]}
 
 });
 
