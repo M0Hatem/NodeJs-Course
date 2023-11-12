@@ -7,6 +7,9 @@
    <%- include('../includes/navigation.ejs') %>
 
     <main>
+        <% if(errorMessage){%>
+             <div><%= errorMessage %></div>
+        <%}%>
         <form class="login-form" action="/login" method="POST">
             <input type="hidden" value="<%= csrfToken %>" name="_csrf">
             <div class="form-control">

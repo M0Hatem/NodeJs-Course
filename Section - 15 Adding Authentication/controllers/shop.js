@@ -51,7 +51,6 @@ exports.getCart = async (req, res, next) => {
       pageTitle: "Your Cart",
       products: products,
     });
-    console.log("done2");
   } catch (exc) {
     console.log(exc);
   }
