@@ -4,12 +4,11 @@ const Order = require('../models/order');
 exports.getProducts = (req, res, next) => {
     Product.find()
         .then(products => {
-            console.log(products);
             res.render('shop/product-list', {
                 prods: products,
                 pageTitle: 'All Products',
                 path: '/products',
-                isAuthenticated: req.isLoggedIn
+                isAuthenticated: req.session.loggedin
             });
         })
         .catch(err => {
@@ -25,7 +24,7 @@ exports.getProduct = (req, res, next) => {
                 product: product,
                 pageTitle: product.title,
                 path: '/products',
-                isAuthenticated: req.isLoggedIn
+                isAuthenticated: req.session.loggedin
             });
         })
         .catch(err => console.log(err));
@@ -38,7 +37,7 @@ exports.getIndex = (req, res, next) => {
                 prods: products,
                 pageTitle: 'Shop',
                 path: '/',
-                isAuthenticated: req.isLoggedIn
+                isAuthenticated: req.session.loggedin
             });
         })
         .catch(err => {
@@ -54,7 +53,7 @@ exports.getCart = async (req, res, next) => {
             path: '/cart',
             pageTitle: 'Your Cart',
             products: products,
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.loggedin
         });
         console.log("done2")
     } catch (exc) {
@@ -69,7 +68,6 @@ exports.postCart = (req, res, next) => {
             return req.user.addToCart(product);
         })
         .then(result => {
-            console.log(result);
             res.redirect('/cart');
         });
 };
@@ -116,7 +114,7 @@ exports.getOrders = (req, res, next) => {
                 path: '/orders',
                 pageTitle: 'Your Orders',
                 orders: orders,
-                isAuthenticated: req.isLoggedIn
+                isAuthenticated: req.session.loggedin
             });
         })
         .catch(err => console.log(err));
