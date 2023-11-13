@@ -1,3 +1,5 @@
+const crypto = require("crypto");
+
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/user");
@@ -90,5 +92,44 @@ exports.postLogout = (req, res, next) => {
       console.log(err);
     }
     res.redirect("/");
+  });
+};
+
+exports.getReset = (req, res, next) => {
+  let message = req.flash("error");
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render("auth/reset", {
+    path: "/reset",
+    pageTitle: "reset",
+    errorMessage: message,
+  });
+};
+
+exports.postReset = (req, res, next) => {
+  crypto.randomBytes(32, (err, buffer) => {
+    if (err) {
+      console.log(err);
+      return res.redirect("/reset");
+    }
+    const token = buffer.toString("hex");
+    User.findOne({ email: req.body.email })
+      .then((user) => {
+        if (!user) {
+          req.flash("error", "No account with that email found.");
+          return res.redirect("/reset");
+        }
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then(() => {
+        res.redirect("/login");
+        console.log(`http://localhost:3000/reset/${token}`);
+      })
+      .catch((err) => console.log(err));
   });
 };
