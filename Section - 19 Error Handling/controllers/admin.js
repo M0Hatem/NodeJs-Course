@@ -69,7 +69,10 @@ exports.postAddProduct = (req, res, next) => {
       //   errorMessage: "Database error, please try again",
       //   validationErrors: [],
       // });
-      res.redirect("/500");
+      // res.redirect("/500");
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -142,7 +145,11 @@ exports.postEditProduct = (req, res, next) => {
       });
     })
 
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getProducts = (req, res, next) => {
