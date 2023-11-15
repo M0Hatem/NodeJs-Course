@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 const { validationResult } = require("express-validator");
 
 const User = require("../models/user");
@@ -49,7 +50,6 @@ exports.postLogin = (req, res, next) => {
   const password = req.body.password;
 
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(422).render("auth/login", {
       path: "/login",
@@ -88,7 +88,7 @@ exports.postLogin = (req, res, next) => {
               res.redirect("/");
             });
           }
-          res.status(422).render("auth/login", {
+          return res.status(422).render("auth/login", {
             path: "/login",
             pageTitle: "Login",
             errorMessage: "Invalid email or password.",
@@ -110,13 +110,14 @@ exports.postLogin = (req, res, next) => {
       return next(error);
     });
 };
+
 exports.postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
 
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
+    console.log(errors.array());
     return res.status(422).render("auth/signup", {
       path: "/signup",
       pageTitle: "Signup",
@@ -141,10 +142,13 @@ exports.postSignup = (req, res, next) => {
       return user.save();
     })
     .then((result) => {
-      if (result) {
-        console.log(result);
-      }
       res.redirect("/login");
+      // return transporter.sendMail({
+      //   to: email,
+      //   from: 'shop@node-complete.com',
+      //   subject: 'Signup succeeded!',
+      //   html: '<h1>You successfully signed up!</h1>'
+      // });
     })
     .catch((err) => {
       const error = new Error(err);
@@ -155,9 +159,7 @@ exports.postSignup = (req, res, next) => {
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
-    if (err) {
-      console.log(err);
-    }
+    console.log(err);
     res.redirect("/");
   });
 };
@@ -171,7 +173,7 @@ exports.getReset = (req, res, next) => {
   }
   res.render("auth/reset", {
     path: "/reset",
-    pageTitle: "reset",
+    pageTitle: "Reset Password",
     errorMessage: message,
   });
 };
@@ -193,9 +195,9 @@ exports.postReset = (req, res, next) => {
         user.resetTokenExpiration = Date.now() + 3600000;
         return user.save();
       })
-      .then(() => {
-        res.redirect("/login");
-        console.log(`http://localhost:3000/reset/${token}`);
+      .then((result) => {
+        res.redirect("/");
+        console.log("http://localhost:3000/reset/${token}");
       })
       .catch((err) => {
         const error = new Error(err);
@@ -207,10 +209,7 @@ exports.postReset = (req, res, next) => {
 
 exports.getNewPassword = (req, res, next) => {
   const token = req.params.token;
-  User.findOne({
-    resetToken: token,
-    resetTokenExpiration: { $gt: Date.now() },
-  })
+  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then((user) => {
       let message = req.flash("error");
       if (message.length > 0) {
@@ -238,6 +237,7 @@ exports.postNewPassword = (req, res, next) => {
   const userId = req.body.userId;
   const passwordToken = req.body.passwordToken;
   let resetUser;
+
   User.findOne({
     resetToken: passwordToken,
     resetTokenExpiration: { $gt: Date.now() },

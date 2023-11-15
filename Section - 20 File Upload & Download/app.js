@@ -20,7 +20,6 @@ const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: "sessions",
 });
-
 const csrfProtection = csrf();
 
 const fileStorage = multer.diskStorage({
@@ -56,6 +55,7 @@ app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
   session({
     secret: "my secret",
@@ -64,7 +64,6 @@ app.use(
     store: store,
   })
 );
-
 app.use(csrfProtection);
 app.use(flash());
 
@@ -75,16 +74,19 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
+  // throw new Error('Sync Dummy');
   if (!req.session.user) {
     return next();
   }
   User.findById(req.session.user._id)
     .then((user) => {
+      if (!user) {
+        return next();
+      }
       req.user = user;
       next();
     })
     .catch((err) => {
-      // console.log(err);
       next(new Error(err));
     });
 });
@@ -98,9 +100,12 @@ app.get("/500", errorController.get500);
 app.use(errorController.get404);
 
 app.use((error, req, res, next) => {
+  // res.status(error.httpStatusCode).render(...);
+  // res.redirect('/500');
   res.status(500).render("500", {
     pageTitle: "Error!",
     path: "/500",
+    isAuthenticated: req.session.isLoggedIn,
   });
 });
 
@@ -108,7 +113,7 @@ mongoose
   .connect(MONGODB_URI)
   .then((result) => {
     app.listen(3000);
-    console.log("connected!");
+    console.log("Connected!");
   })
   .catch((err) => {
     console.log(err);
