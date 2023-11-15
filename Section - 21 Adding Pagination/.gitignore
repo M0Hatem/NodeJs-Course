@@ -5,3 +5,5 @@ node_modules
 /.idea/Section 13 - Working with Mongoose.iml
 /.idea/vcs.xml
 /user.text
+/images/
+/data/invoices/
