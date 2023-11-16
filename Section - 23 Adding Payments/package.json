@@ -30,6 +30,7 @@
     "nodemailer": "^6.9.7",
     "pdfkit": "^0.14.0",
     "pug": "^3.0.2",
-    "sequelize": "^6.33.0"
+    "sequelize": "^6.33.0",
+    "stripe": "^14.4.0"
   }
 }
