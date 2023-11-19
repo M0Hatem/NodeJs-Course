@@ -171,7 +171,6 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 403;
         throw error;
       }
-      //user and so on
       clearImage(post.imageUrl);
       return Post.findByIdAndDelete(postId);
     })
