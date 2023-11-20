@@ -5,9 +5,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const { graphqlHTTP } = require("express-graphql");
 
-const feedRoutes = require("./routes/feed");
-const feedAuth = require("./routes/auth");
+const graphqlSchema = require("./graphql/schema");
+const graphqlResolver = require("./graphql/resolvers");
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -33,7 +34,6 @@ const fileFilter = (req, file, cb) => {
 // connection
 const app = express();
 const httpServer = createServer(app);
-const io = require("./socket").init(httpServer);
 
 app.use(bodyParser.json());
 app.use("/images", express.static(path.join(__dirname, "images")));
@@ -51,8 +51,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/feed", feedRoutes);
-app.use("/auth", feedAuth);
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver,
+  })
+);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -66,16 +71,7 @@ mongoose
     "mongodb+srv://M16:weCcGe8yXb94dJIT@shop-node.w1gikuj.mongodb.net/messages?retryWrites=true&w=majority"
   )
   .then((result) => {
-    // const server = app.listen(8080);
-    // // socket connection on top of HTTP Server
-    // const io = require('./socket').init(server);
-    // io.on('connection', (socket) => {
-    //   console.log('client connected');
-    // });
-
-    io.on("connection", (socket) => {
-      console.log("client connected");
-    });
     httpServer.listen(8080);
+    console.log("Connected!");
   })
   .catch((err) => console.log(err));
