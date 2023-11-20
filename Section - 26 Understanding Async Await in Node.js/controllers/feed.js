@@ -69,7 +69,9 @@ exports.createPost = async (req, res, next) => {
 
 exports.getPost = async (req, res, next) => {
   const postId = req.params.postId;
+  console.log(postId)
   const post = await Post.findById(postId);
+  console.log(post)
   try {
     if (!post) {
       const error = new Error('Could not find post.');
@@ -149,7 +151,7 @@ exports.deletePost = async (req, res, next) => {
     }
     // Check logged in user
     clearImage(post.imageUrl);
-    await Post.findByIdAndRemove(postId);
+    await Post.findByIdAndDelete(postId);
 
     const user = await User.findById(req.userId);
     user.posts.pull(postId);

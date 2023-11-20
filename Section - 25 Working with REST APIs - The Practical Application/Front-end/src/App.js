@@ -64,11 +64,11 @@ class App extends Component {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        body: JSON.stringify({
-          email: authData.email,
-          password: authData.password,
-        }),
       },
+      body: JSON.stringify({
+        email: authData.email,
+        password: authData.password,
+      }),
     })
       .then((res) => {
         if (res.status === 422) {
@@ -114,12 +114,12 @@ class App extends Component {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        body: JSON.stringify({
-          email: authData.signupform.email.value,
-          password: authData.signupform.password.value,
-          name: authData.signupform.name.value,
-        }),
       },
+      body: JSON.stringify({
+        email: authData.signupForm.email.value,
+        password: authData.signupForm.password.value,
+        name: authData.signupForm.name.value,
+      }),
     })
       .then((res) => {
         if (res.status === 422) {
