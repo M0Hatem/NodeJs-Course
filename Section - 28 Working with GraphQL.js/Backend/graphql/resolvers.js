@@ -16,7 +16,10 @@ module.exports = {
       errors.push({ message: "password is invalid" });
     }
     if (errors.length > 0) {
-      throw new Error("invalid inputs");
+      const error = new Error("invalid inputs");
+      error.data = errors;
+      error.code = 422;
+      throw error;
     }
     const existingUser = await User.findOne({ email: userInput.email });
     if (existingUser) {
