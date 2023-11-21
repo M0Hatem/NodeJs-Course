@@ -63,6 +63,11 @@ module.exports = {
     };
   },
   createPost: async function ({ postInput }, req) {
+    if (!req.isAuth) {
+      const error = new Error("Not Authenticated");
+      error.code = 401;
+      throw error;
+    }
     const errors = [];
     if (
       validator.isEmpty(postInput.title) ||
@@ -88,13 +93,24 @@ module.exports = {
       error.code = 422;
       throw error;
     }
+    const user = await User.findById(req.user);
+    if (!user) {
+      const error = new Error("invalid user ");
+      error.code = 401;
+      throw error;
+    }
+
     const post = new Post({
       title: postInput.title,
       imageUrl: postInput.imageUrl,
       content: postInput.content,
+      creator: user,
     });
     const createdPost = await post.save();
 
+    user.posts.push(createdPost);
+
+    await user.save();
     return {
       ...createdPost._doc,
       _id: createdPost._id.toString(),
