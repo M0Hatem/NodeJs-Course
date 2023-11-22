@@ -1,17 +1,17 @@
-import React, { Component, Fragment } from "react";
-import { Route, Switch, Redirect, withRouter } from "react-router-dom";
+import React, { Component, Fragment } from 'react';
+import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
 
-import Layout from "./components/Layout/Layout";
-import Backdrop from "./components/Backdrop/Backdrop";
-import Toolbar from "./components/Toolbar/Toolbar";
-import MainNavigation from "./components/Navigation/MainNavigation/MainNavigation";
-import MobileNavigation from "./components/Navigation/MobileNavigation/MobileNavigation";
-import ErrorHandler from "./components/ErrorHandler/ErrorHandler";
-import FeedPage from "./pages/Feed/Feed";
-import SinglePostPage from "./pages/Feed/SinglePost/SinglePost";
-import LoginPage from "./pages/Auth/Login";
-import SignupPage from "./pages/Auth/Signup";
-import "./App.css";
+import Layout from './components/Layout/Layout';
+import Backdrop from './components/Backdrop/Backdrop';
+import Toolbar from './components/Toolbar/Toolbar';
+import MainNavigation from './components/Navigation/MainNavigation/MainNavigation';
+import MobileNavigation from './components/Navigation/MobileNavigation/MobileNavigation';
+import ErrorHandler from './components/ErrorHandler/ErrorHandler';
+import FeedPage from './pages/Feed/Feed';
+import SinglePostPage from './pages/Feed/SinglePost/SinglePost';
+import LoginPage from './pages/Auth/Login';
+import SignupPage from './pages/Auth/Signup';
+import './App.css';
 
 class App extends Component {
   state = {
@@ -25,8 +25,8 @@ class App extends Component {
   };
 
   componentDidMount() {
-    const token = localStorage.getItem("token");
-    const expiryDate = localStorage.getItem("expiryDate");
+    const token = localStorage.getItem('token');
+    const expiryDate = localStorage.getItem('expiryDate');
     if (!token || !expiryDate) {
       return;
     }
@@ -34,7 +34,7 @@ class App extends Component {
       this.logoutHandler();
       return;
     }
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem('userId');
     const remainingMilliseconds =
       new Date(expiryDate).getTime() - new Date().getTime();
     this.setState({ isAuth: true, token: token, userId: userId });
@@ -51,9 +51,9 @@ class App extends Component {
 
   logoutHandler = () => {
     this.setState({ isAuth: false, token: null });
-    localStorage.removeItem("token");
-    localStorage.removeItem("expiryDate");
-    localStorage.removeItem("userId");
+    localStorage.removeItem('token');
+    localStorage.removeItem('expiryDate');
+    localStorage.removeItem('userId');
   };
 
   loginHandler = (event, authData) => {
@@ -61,13 +61,22 @@ class App extends Component {
     this.setState({ authLoading: true });
     const graphqlQuery = {
       query: `
-      {login(email:"${authData.email}",password:${authData.password})}{ token userId } 
+        query LoginUser($email: String!, $password: String!){
+          login(email: $email, password: $password){
+            token
+            userId
+          }
+        }
       `,
+      variables: {
+        email: authData.email,
+        password: authData.password,
+      },
     };
-    fetch("http://localhost:8080/graphql", {
-      method: "POST",
+    fetch('http://localhost:8080/graphql', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(graphqlQuery),
     })
@@ -81,22 +90,22 @@ class App extends Component {
           );
         }
         if (resData.errors) {
-          throw new Error("logging user in  failed");
+          throw new Error('User creation failed!');
         }
-        console.log(resData);
+
         this.setState({
           isAuth: true,
           token: resData.data.login.token,
           authLoading: false,
           userId: resData.data.login.userId,
         });
-        localStorage.setItem("token", resData.data.login.token);
-        localStorage.setItem("userId", resData.data.login.userId);
+        localStorage.setItem('token', resData.data.login.token);
+        localStorage.setItem('userId', resData.data.login.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
         const expiryDate = new Date(
           new Date().getTime() + remainingMilliseconds
         );
-        localStorage.setItem("expiryDate", expiryDate.toISOString());
+        localStorage.setItem('expiryDate', expiryDate.toISOString());
         this.setAutoLogout(remainingMilliseconds);
       })
       .catch((err) => {
@@ -113,18 +122,26 @@ class App extends Component {
     event.preventDefault();
     this.setState({ authLoading: true });
     const graphqlQuery = {
-      query: `mutation{
-      createUser(userInput:{email:"${authData.signupForm.email.value}",name:"${authData.signupForm.name.value}",password:"${authData.signupForm.password.value}"}){
-    _id
-    email
-  }
-}
-    `,
+      query: `
+      mutation SignUp($email: String!,
+        $password: String!
+        $name: String!){createUser(userInput:{email: $email password: $password name: $name}) {
+        _id
+        email
+      }}
+      
+      `,
+      variables: {
+        email: authData.signupForm.email.value,
+        password: authData.signupForm.password.value,
+        name: authData.signupForm.name.value,
+      },
     };
-    fetch("http://localhost:8080/graphql", {
-      method: "PUT",
+
+    fetch('http://localhost:8080/graphql', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(graphqlQuery),
     })
@@ -138,11 +155,11 @@ class App extends Component {
           );
         }
         if (resData.errors) {
-          throw new Error("creating user failed");
+          throw new Error('User creation failed!');
         }
         console.log(resData);
         this.setState({ isAuth: false, authLoading: false });
-        this.props.history.replace("/");
+        this.props.history.replace('/');
       })
       .catch((err) => {
         console.log(err);
